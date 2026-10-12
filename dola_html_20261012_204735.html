@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบประเมินสภาพก่อนรีโนเวท</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CBCB',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-bg {
+                background: linear-gradient(135deg, #165DFF 0%, #36CBCB 100%);
+            }
+            .input-focus {
+                transition: all 0.3s ease;
+            }
+            .input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(22, 93, 255, 0.15);
+            }
+            .fade-in {
+                animation: fadeIn 0.5s ease forwards;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+    <!-- หน้าเข้าสู่ระบบ -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center gradient-bg p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-home text-white text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">ระบบประเมินสภาพก่อนรีโนเวท</h1>
+                <p class="text-gray-500 mt-2">ลงชื่อเข้าใช้เพื่อเริ่มต้น</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">อีเมล / ชื่อผู้ใช้</label>
+                    <input type="text" id="loginUsername" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="กรุณากรอกอีเมล">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">รหัสผ่าน</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            placeholder="กรุณากรอกรหัสผ่าน">
+                        <button type="button" id="toggleLoginPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 text-gray-600 text-sm">
+                        <input type="checkbox" class="accent-primary"> จดจำฉันไว้
+                    </label>
+                    <button type="button" id="linkForgot" class="text-primary hover:underline text-sm">ลืมรหัสผ่าน?</button>
+                </div>
+                <button type="submit" 
+                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                    เข้าสู่ระบบ <i class="fa fa-arrow-right ml-2"></i>
+                </button>
+                <p class="text-center text-gray-600 mt-4 text-sm">
+                    ยังไม่มีบัญชี? <button type="button" id="linkRegister" class="text-primary font-medium hover:underline">ลงทะเบียนที่นี่</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- หน้าลงทะเบียน -->
+    <div id="registerPage" class="hidden min-h-screen flex items-center justify-center gradient-bg p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-user-plus text-white text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">สร้างบัญชีใหม่</h1>
+                <p class="text-gray-500 mt-2">กรอกข้อมูลเพื่อลงทะเบียน</p>
+            </div>
+            
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">ชื่อ-นามสกุล</label>
+                    <input type="text" id="regName" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="ระบุชื่อ-นามสกุล">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">อีเมล</label>
+                    <input type="email" id="regEmail" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="example@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="regPhone"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="0xx-xxxxxxx">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+                    <div class="relative">
+                        <input type="password" id="regPwd" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            placeholder="ตั้งรหัสผ่าน">
+                        <button type="button" id="toggleRegPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">ยืนยันรหัสผ่านอีกครั้ง</label>
+                    <input type="password" id="regPwd2" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+                </div>
+                <label class="flex items-start gap-2 text-gray-600 text-sm">
+                    <input type="checkbox" id="regAgree" class="mt-1 accent-primary" required>
+                    ฉันยอมรับเงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว
+                </label>
+                <button type="submit" id="btnRegister"
+                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all mt-2">
+                    ลงทะเบียน <i class="fa fa-check ml-2"></i>
+                </button>
+                <p class="text-center text-gray-600 mt-4 text-sm">
+                    มีบัญชีอยู่แล้ว? <button type="button" id="linkLoginFromReg" class="text-primary font-medium hover:underline">เข้าสู่ระบบ</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- หน้าลืมรหัสผ่าน -->
+    <div id="forgotPage" class="hidden min-h-screen flex items-center justify-center gradient-bg p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-key text-warning text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">ลืมรหัสผ่าน</h1>
+                <p class="text-gray-500 mt-2">กรอกอีเมลเพื่อตั้งรหัสผ่านใหม่</p>
+            </div>
+            
+            <!-- ขั้นตอน 1: ตรวจสอบอีเมล -->
+            <form id="forgotStep1" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">อีเมลที่ใช้ลงทะเบียน</label>
+                    <input type="email" id="forgotEmail" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="example@email.com">
+                </div>
+                <button type="submit" id="btnCheckEmail"
+                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                    ตรวจสอบอีเมล <i class="fa fa-search ml-2"></i>
+                </button>
+                <p class="text-center mt-4 text-sm">
+                    <button type="button" id="backLogin1" class="text-primary hover:underline">
+                        <i class="fa fa-arrow-left"></i> กลับไปเข้าสู่ระบบ
+                    </button>
+                </p>
+            </form>
+
+            <!-- ขั้นตอน 2: ตั้งรหัสใหม่ -->
+            <form id="forgotStep2" class="space-y-4 hidden">
+                <div class="p-3 bg-green-50 rounded-lg border border-success mb-2">
+                    <p class="text-success text-sm"><i class="fa fa-check-circle"></i> พบบัญชี: <span id="foundUserName" class="font-medium"></span></p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">รหัสผ่านใหม่</label>
+                    <div class="relative">
+                        <input type="password" id="newPwd" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            placeholder="อย่างน้อย 6 ตัวอักษร">
+                        <button type="button" id="toggleNewPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" id="newPwd2" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        placeholder="พิมพ์อีกครั้ง">
+                </div>
+                <button type="submit" id="btnResetPwd"
+                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                    บันทึกรหัสผ่านใหม่ <i class="fa fa-check ml-2"></i>
+                </button>
+                <p class="text-center mt-4 text-sm">
+                    <button type="button" id="backLogin2" class="text-primary hover:underline">
+                        <i class="fa fa-arrow-left"></i> กลับไปเข้าสู่ระบบ
+                    </button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- หน้าหลัก -->
+    <div id="mainPage" class="hidden">
+        <nav class="bg-white shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
+                        <i class="fa fa-home text-white"></i>
+                    </div>
+                    <span class="font-bold hidden sm:inline">ประเมินสภาพก่อนรีโนเวท</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="hidden md:inline font-medium" id="currentUser">ผู้ใช้งาน</span>
+                    <button id="btnLogout" class="text-gray-600 hover:text-danger">
+                        <i class="fa fa-sign-out"></i> ออก
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <main class="container mx-auto px-4 py-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">ยินดีต้อนรับ</h1>
+            <p class="text-gray-600">เข้าสู่ระบบสำเร็จแล้ว — ส่วนนี้คือหน้าหลักของระบบ</p>
+        </main>
+    </div>
+
+    <!-- แจ้งเตือน -->
+    <div id="toast" class="fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full pointer-events-none"></div>
+
+    <script>
+        // === เครื่องมือช่วยแจ้งเตือน ===
+        function showToast(msg, type='info') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 translate-x-full ${
+                type==='success'?'bg-success text-white':type==='error'?'bg-danger text-white':'bg-primary text-white'
+            }`;
+            setTimeout(() => t.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                t.classList.add('translate-x-full');
+                setTimeout(() => t.textContent='', 300);
+            }, 3000);
+        }
+
+        // === สลับหน้า ===
+        function showPage(pageId) {
+            ['loginPage','registerPage','forgotPage','mainPage'].forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id!==pageId);
+            });
+        }
+
+        // ลิงก์ต่างๆ
+        document.getElementById('linkRegister').onclick = () => showPage('registerPage');
+        document.getElementById('linkLoginFromReg').onclick = () => showPage('loginPage');
+        document.getElementById('linkForgot').onclick = () => {
+            showPage('forgotPage');
+            document.getElementById('forgotStep1').classList.remove('hidden');
+            document.getElementById('forgotStep2').classList.add('hidden');
+            document.getElementById('forgotEmail').value = '';
+        };
+        document.getElementById('backLogin1').onclick = () => showPage('loginPage');
+        document.getElementById('backLogin2').onclick = () => showPage('loginPage');
+        document.getElementById('btnLogout').onclick = () => {
+            showPage('loginPage');
+            document.getElementById('loginForm').reset();
+            showToast('ออกจากระบบเรียบร้อย','info');
+        };
+
+        // === แสดง/ซ่อนรหัสผ่าน ===
+        function setupEyeToggle(btnId, inputId) {
+            const btn = document.getElementById(btnId);
+            const inp = document.getElementById(inputId);
+            btn.onclick = () => {
+                const isPwd = inp.type === 'password';
+                inp.type = isPwd ? 'text' : 'password';
+                btn.querySelector('i').classList.toggle('fa-eye', isPwd);
+                btn.querySelector('i').classList.toggle('fa-eye-slash', !isPwd);
+            };
+        }
+        setupEyeToggle('toggleLoginPwd','loginPassword');
+        setupEyeToggle('toggleRegPwd','regPwd');
+        setupEyeToggle('toggleNewPwd','newPwd');
+
+        // === ลงทะเบียน ===
+        document.getElementById('registerForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pwd = document.getElementById('regPwd').value;
+            const pwd2 = document.getElementById('regPwd2').value;
+
+            if (pwd.length < 6) return showToast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร','error');
+            if (pwd !== pwd2) return showToast('รหัสผ่านไม่ตรงกัน','error');
+
+            // ตรวจซ้ำ
+            const existing = JSON.parse(localStorage.getItem('appUser')||'{}');
+            if (existing.email && existing.email === email) {
+                return showToast('อีเมลนี้มีในระบบแล้ว','error');
+            }
+
+            // บันทึก
+            const user = { name, email, phone, password: pwd };
+            localStorage.setItem('appUser', JSON.stringify(user));
+            
+            showToast(`ลงทะเบียนสำเร็จ! ยินดีต้อนรับคุณ ${name}`,'success');
+            
+            setTimeout(() => {
+                showPage('loginPage');
+                document.getElementById('loginUsername').value = email;
+                this.reset();
+            }, 1500);
+        };
+
+        // === เข้าสู่ระบบ ===
+        document.getElementById('loginForm').onsubmit = function(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value;
+            const saved = JSON.parse(localStorage.getItem('appUser')||'{}');
+
+            let ok = false, dispName = '';
+            if (saved.email && u === saved.email && p === saved.password) {
+                ok = true; dispName = saved.name;
+            }
+            // บัญชีทดลอง
+            if (u === 'admin' && p === '123456') {
+                ok = true; dispName = 'ผู้ดูแลระบบ';
+            }
+
+            if (ok) {
+                document.getElementById('currentUser').textContent = dispName;
+                showPage('mainPage');
+                showToast(`ยินดีต้อนรับคุณ ${dispName}`,'success');
+            } else {
+                showToast('อีเมลหรือรหัสผ่านไม่ถูกต้อง','error');
+            }
+        };
+
+        // === ลืมรหัสผ่าน — ตรวจสอบอีเมล ===
+        document.getElementById('forgotStep1').onsubmit = function(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            const saved = JSON.parse(localStorage.getItem('appUser')||'{}');
+
+            if (!saved.email || saved.email !== email) {
+                return showToast('ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง','error');
+            }
+
+            // พบแล้ว → ไปตั้งรหัสใหม่
+            document.getElementById('foundUserName').textContent = saved.name;
+            this.classList.add('hidden');
+            document.getElementById('forgotStep2').classList.remove('hidden');
+            showToast('พบบัญชีแล้ว กรุณาตั้งรหัสผ่านใหม่','success');
+        };
+
+        // === ลืมรหัสผ่าน — บันทึกรหัสใหม่ ===
+        document.getElementById('forgotStep2').onsubmit = function(e) {
+            e.preventDefault();
+            const pwd = document.getElementById('newPwd').value;
+            const pwd2 = document.getElementById('newPwd2').value;
+
+            if (pwd.length < 6) return showToast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร','error');
+            if (pwd !== pwd2) return showToast('รหัสผ่านไม่ตรงกัน','error');
+
+            // อัปเดต
+            const saved = JSON.parse(localStorage.getItem('appUser'));
+            saved.password = pwd;
+            localStorage.setItem('appUser', JSON.stringify(saved));
+
+            showToast('ตั้งรหัสผ่านใหม่สำเร็จ!','success');
+            
+            setTimeout(() => {
+                showPage('loginPage');
+                document.getElementById('loginUsername').value = saved.email;
+                document.getElementById('newPwd').value = '';
+                document.getElementById('newPwd2').value = '';
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
