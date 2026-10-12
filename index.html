@@ -6,50 +6,28 @@
     <title>ระบบประเมินสภาพก่อนรีโนเวท</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#165DFF',
-                        secondary: '#36CBCB',
-                        success: '#00B42A',
-                        warning: '#FF7D00',
-                        danger: '#F53F3F',
-                    },
-                },
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .gradient-bg {
-                background: linear-gradient(135deg, #165DFF 0%, #36CBCB 100%);
-            }
-            .input-focus {
-                transition: all 0.3s ease;
-            }
-            .input-focus:focus {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(22, 93, 255, 0.15);
-            }
-            .fade-in {
-                animation: fadeIn 0.5s ease forwards;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        }
-    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Noto Sans Thai', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #165DFF 0%, #36CBCB 100%); }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        .card-shadow { box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+        .input-focus:focus { box-shadow: 0 4px 12px rgba(22,93,255,0.15); }
+        .risk-low { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+        .risk-medium { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+        .risk-high { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+    </style>
 </head>
-<body class="font-sans bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
+    <!-- แจ้งเตือน -->
+    <div id="toast" class="fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full pointer-events-none"></div>
+
     <!-- หน้าเข้าสู่ระบบ -->
     <div id="loginPage" class="min-h-screen flex items-center justify-center gradient-bg p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+        <div class="bg-white rounded-2xl card-shadow w-full max-w-md p-8 fade-in">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
                     <i class="fa fa-home text-white text-3xl"></i>
@@ -62,32 +40,31 @@
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">อีเมล / ชื่อผู้ใช้</label>
                     <input type="text" id="loginUsername" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="กรุณากรอกอีเมล">
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">รหัสผ่าน</label>
                     <div class="relative">
                         <input type="password" id="loginPassword" required
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                             placeholder="กรุณากรอกรหัสผ่าน">
                         <button type="button" id="toggleLoginPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                             <i class="fa fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 text-gray-600 text-sm">
-                        <input type="checkbox" class="accent-primary"> จดจำฉันไว้
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-gray-600">
+                        <input type="checkbox" class="accent-blue-500"> จดจำฉันไว้
                     </label>
-                    <button type="button" id="linkForgot" class="text-primary hover:underline text-sm">ลืมรหัสผ่าน?</button>
+                    <button type="button" id="linkForgot" class="text-blue-600 hover:underline">ลืมรหัสผ่าน?</button>
                 </div>
-                <button type="submit" 
-                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                <button type="submit" class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
                     เข้าสู่ระบบ <i class="fa fa-arrow-right ml-2"></i>
                 </button>
                 <p class="text-center text-gray-600 mt-4 text-sm">
-                    ยังไม่มีบัญชี? <button type="button" id="linkRegister" class="text-primary font-medium hover:underline">ลงทะเบียนที่นี่</button>
+                    ยังไม่มีบัญชี? <button type="button" id="linkRegister" class="text-blue-600 font-medium hover:underline">ลงทะเบียนที่นี่</button>
                 </p>
             </form>
         </div>
@@ -95,7 +72,7 @@
 
     <!-- หน้าลงทะเบียน -->
     <div id="registerPage" class="hidden min-h-screen flex items-center justify-center gradient-bg p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+        <div class="bg-white rounded-2xl card-shadow w-full max-w-md p-8 fade-in">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
                     <i class="fa fa-user-plus text-white text-3xl"></i>
@@ -108,26 +85,26 @@
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">ชื่อ-นามสกุล</label>
                     <input type="text" id="regName" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="ระบุชื่อ-นามสกุล">
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">อีเมล</label>
                     <input type="email" id="regEmail" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="example@email.com">
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">เบอร์โทรศัพท์</label>
                     <input type="tel" id="regPhone"
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="0xx-xxxxxxx">
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
                     <div class="relative">
                         <input type="password" id="regPwd" required
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                             placeholder="ตั้งรหัสผ่าน">
                         <button type="button" id="toggleRegPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                             <i class="fa fa-eye-slash"></i>
@@ -137,19 +114,18 @@
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">ยืนยันรหัสผ่านอีกครั้ง</label>
                     <input type="password" id="regPwd2" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="พิมพ์รหัสผ่านอีกครั้ง">
                 </div>
                 <label class="flex items-start gap-2 text-gray-600 text-sm">
-                    <input type="checkbox" id="regAgree" class="mt-1 accent-primary" required>
+                    <input type="checkbox" id="regAgree" class="mt-1 accent-blue-500" required>
                     ฉันยอมรับเงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว
                 </label>
-                <button type="submit" id="btnRegister"
-                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all mt-2">
+                <button type="submit" class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all mt-2">
                     ลงทะเบียน <i class="fa fa-check ml-2"></i>
                 </button>
                 <p class="text-center text-gray-600 mt-4 text-sm">
-                    มีบัญชีอยู่แล้ว? <button type="button" id="linkLoginFromReg" class="text-primary font-medium hover:underline">เข้าสู่ระบบ</button>
+                    มีบัญชีอยู่แล้ว? <button type="button" id="linkLoginFromReg" class="text-blue-600 font-medium hover:underline">เข้าสู่ระบบ</button>
                 </p>
             </form>
         </div>
@@ -157,44 +133,41 @@
 
     <!-- หน้าลืมรหัสผ่าน -->
     <div id="forgotPage" class="hidden min-h-screen flex items-center justify-center gradient-bg p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
+        <div class="bg-white rounded-2xl card-shadow w-full max-w-md p-8 fade-in">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
-                    <i class="fa fa-key text-warning text-3xl"></i>
+                    <i class="fa fa-key text-yellow-500 text-3xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-gray-800">ลืมรหัสผ่าน</h1>
                 <p class="text-gray-500 mt-2">กรอกอีเมลเพื่อตั้งรหัสผ่านใหม่</p>
             </div>
             
-            <!-- ขั้นตอน 1: ตรวจสอบอีเมล -->
             <form id="forgotStep1" class="space-y-4">
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">อีเมลที่ใช้ลงทะเบียน</label>
                     <input type="email" id="forgotEmail" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="example@email.com">
                 </div>
-                <button type="submit" id="btnCheckEmail"
-                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                <button type="submit" class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
                     ตรวจสอบอีเมล <i class="fa fa-search ml-2"></i>
                 </button>
                 <p class="text-center mt-4 text-sm">
-                    <button type="button" id="backLogin1" class="text-primary hover:underline">
+                    <button type="button" id="backLogin1" class="text-blue-600 hover:underline">
                         <i class="fa fa-arrow-left"></i> กลับไปเข้าสู่ระบบ
                     </button>
                 </p>
             </form>
 
-            <!-- ขั้นตอน 2: ตั้งรหัสใหม่ -->
             <form id="forgotStep2" class="space-y-4 hidden">
-                <div class="p-3 bg-green-50 rounded-lg border border-success mb-2">
-                    <p class="text-success text-sm"><i class="fa fa-check-circle"></i> พบบัญชี: <span id="foundUserName" class="font-medium"></span></p>
+                <div class="p-3 bg-green-50 rounded-lg border border-green-200 mb-2">
+                    <p class="text-green-700 text-sm"><i class="fa fa-check-circle"></i> พบบัญชี: <span id="foundUserName" class="font-medium"></span></p>
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">รหัสผ่านใหม่</label>
                     <div class="relative">
                         <input type="password" id="newPwd" required
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                             placeholder="อย่างน้อย 6 ตัวอักษร">
                         <button type="button" id="toggleNewPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                             <i class="fa fa-eye-slash"></i>
@@ -204,15 +177,14 @@
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">ยืนยันรหัสผ่านใหม่</label>
                     <input type="password" id="newPwd2" required
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-primary"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
                         placeholder="พิมพ์อีกครั้ง">
                 </div>
-                <button type="submit" id="btnResetPwd"
-                    class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                <button type="submit" class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
                     บันทึกรหัสผ่านใหม่ <i class="fa fa-check ml-2"></i>
                 </button>
                 <p class="text-center mt-4 text-sm">
-                    <button type="button" id="backLogin2" class="text-primary hover:underline">
+                    <button type="button" id="backLogin2" class="text-blue-600 hover:underline">
                         <i class="fa fa-arrow-left"></i> กลับไปเข้าสู่ระบบ
                     </button>
                 </p>
@@ -220,42 +192,212 @@
         </div>
     </div>
 
-    <!-- หน้าหลัก -->
+    <!-- หน้าหลักหลังเข้าระบบ -->
     <div id="mainPage" class="hidden">
-        <nav class="bg-white shadow-md sticky top-0 z-50">
+        <!-- แถบเมนูบน -->
+        <header class="bg-white shadow-sm sticky top-0 z-40">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
                         <i class="fa fa-home text-white"></i>
                     </div>
-                    <span class="font-bold hidden sm:inline">ประเมินสภาพก่อนรีโนเวท</span>
+                    <span class="font-semibold text-gray-800">ประเมินสภาพก่อนรีโนเวท</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="hidden md:inline font-medium" id="currentUser">ผู้ใช้งาน</span>
-                    <button id="btnLogout" class="text-gray-600 hover:text-danger">
-                        <i class="fa fa-sign-out"></i> ออก
+                    <span id="currentUser" class="text-gray-700 hidden md:inline">ผู้ใช้งาน</span>
+                    <button id="btnLogout" class="text-gray-600 hover:text-red-600 flex items-center gap-1">
+                        <span class="hidden sm:inline">ออกจากระบบ</span>
+                        <i class="fa fa-sign-out"></i>
                     </button>
                 </div>
             </div>
-        </nav>
-        <main class="container mx-auto px-4 py-8">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">ยินดีต้อนรับ</h1>
-            <p class="text-gray-600">เข้าสู่ระบบสำเร็จแล้ว — ส่วนนี้คือหน้าหลักของระบบ</p>
+        </header>
+
+        <!-- เมนูแท็บ -->
+        <div class="bg-white border-b mb-6">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-wrap gap-1">
+                    <button data-tab="dashboard" class="tab-btn py-3 px-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+                        <i class="fa fa-tachometer mr-1"></i> แดชบอร์ด
+                    </button>
+                    <button data-tab="assessment" class="tab-btn py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-file-text-o mr-1"></i> ประเมินสภาพ
+                    </button>
+                    <button data-tab="history" class="tab-btn py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-history mr-1"></i> ประวัติ
+                    </button>
+                    <button data-tab="report" class="tab-btn py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-file-pdf-o mr-1"></i> รายงาน
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- เนื้อหาแต่ละแท็บ -->
+        <main class="container mx-auto px-4 pb-10">
+            <!-- แดชบอร์ด -->
+            <section id="tab-dashboard" class="tab-content fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">ยินดีต้อนรับ</h2>
+                <p class="text-gray-600 mb-8">เข้าสู่ระบบสำเร็จแล้ว — เลือกทำรายการด้านล่างนี้ได้เลยครับ</p>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTab('assessment')">
+                        <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mb-4">
+                            <i class="fa fa-pencil-square-o text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">เริ่มประเมินใหม่</h3>
+                        <p class="text-gray-500 text-sm">กรอกข้อมูลเพื่อประเมินสภาพอาคาร</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTab('history')">
+                        <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-600 mb-4">
+                            <i class="fa fa-list-alt text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">ประวัติการประเมิน</h3>
+                        <p class="text-gray-500 text-sm">ดูผลที่เคยบันทึกไว้</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTab('report')">
+                        <div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 mb-4">
+                            <i class="fa fa-file-text-o text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">สร้างรายงาน</h3>
+                        <p class="text-gray-500 text-sm">พิมพ์/ส่งออกรายงานผล</p>
+                    </div>
+                </div>
+
+                <div id="latestResult" class="hidden">
+                    <h3 class="font-semibold text-lg mb-4">ผลประเมินล่าสุด</h3>
+                    <div id="latestResultBox" class="rounded-lg p-5"></div>
+                </div>
+            </section>
+
+            <!-- ประเมินสภาพ -->
+            <section id="tab-assessment" class="tab-content hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">แบบประเมินสภาพอาคารก่อนรีโนเวท</h2>
+                
+                <form id="assessmentForm" class="bg-white rounded-xl p-6 shadow-sm space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">ชื่อโครงการ/อาคาร</label>
+                            <input type="text" id="bldName" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">พื้นที่รวม (ตร.ม.)</label>
+                            <input type="number" id="bldArea" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">อายุการใช้งาน (ปี)</label>
+                            <input type="number" id="bldAge" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">ประเภทโครงสร้าง</label>
+                            <select id="bldType" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500">
+                                <option value="">-- เลือก --</option>
+                                <option value="คอนกรีตเสริมเหล็ก">คอนกรีตเสริมเหล็ก</option>
+                                <option value="เหล็ก">เหล็ก</option>
+                                <option value="ไม้">ไม้</option>
+                                <option value="ผสม/อื่นๆ">ผสม/อื่นๆ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200">
+                    <h3 class="font-semibold text-lg">สภาพโครงสร้างและระบบต่างๆ (0-10 คะแนน, ยิ่งน้อยยิ่งเสี่ยง)</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">1. สภาพเสาและคาน</label>
+                            <input type="range" id="q1" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q1v">5</span></p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">2. ผนังและพื้น</label>
+                            <input type="range" id="q2" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q2v">5</span></p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">3. ระบบไฟฟ้า</label>
+                            <input type="range" id="q3" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q3v">5</span></p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">4. ระบบประปาและท่อ</label>
+                            <input type="range" id="q4" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q4v">5</span></p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">5. หลังคาและกันซึม</label>
+                            <input type="range" id="q5" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q5v">5</span></p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">6. ความปลอดภัยและมาตรฐาน</label>
+                            <input type="range" id="q6" min="0" max="10" value="5" class="w-full">
+                            <p class="text-sm text-gray-500">คะแนน: <span id="q6v">5</span></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">ข้อสังเกตเพิ่มเติม</label>
+                        <textarea id="remark" rows="3"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 input-focus outline-none focus:border-blue-500"
+                            placeholder="จุดที่ควรซ่อมแซมหรือตรวจสอบเพิ่ม..."></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-lg gradient-bg text-white font-medium hover:opacity-90 transition-all">
+                        ประเมินผล <i class="fa fa-calculator ml-2"></i>
+                    </button>
+                </form>
+
+                <!-- ผลลัพธ์ -->
+                <div id="resultBox" class="hidden mt-8 bg-white rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-xl mb-4">ผลการประเมิน</h3>
+                    <div id="resultContent" class="mb-4"></div>
+                    <div class="flex gap-3 mt-6">
+                        <button id="saveResult" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fa fa-save mr-1"></i> บันทึกผล
+                        </button>
+                        <button id="printResult" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            <i class="fa fa-print mr-1"></i> พิมพ์/ส่งออก
+                        </button>
+                        <button id="newAssessment" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fa fa-plus mr-1"></i> ประเมินใหม่
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ประวัติ -->
+            <section id="tab-history" class="tab-content hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">ประวัติการประเมิน</h2>
+                <div id="historyList" class="space-y-4">
+                    <p class="text-gray-500">ยังไม่มีประวัติการประเมิน</p>
+                </div>
+            </section>
+
+            <!-- รายงาน -->
+            <section id="tab-report" class="tab-content hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">สร้างรายงาน</h2>
+                <p class="text-gray-600 mb-6">เลือกผลการประเมินเพื่อจัดทำรายงาน</p>
+                <div id="reportList" class="space-y-4">
+                    <p class="text-gray-500">ยังไม่มีข้อมูล</p>
+                </div>
+            </section>
         </main>
     </div>
 
-    <!-- แจ้งเตือน -->
-    <div id="toast" class="fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full pointer-events-none"></div>
-
     <script>
-        // === เครื่องมือช่วยแจ้งเตือน ===
+        // === เครื่องมือแจ้งเตือน ===
         function showToast(msg, type='info') {
             const t = document.getElementById('toast');
             t.textContent = msg;
-            t.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 translate-x-full ${
-                type==='success'?'bg-success text-white':type==='error'?'bg-danger text-white':'bg-primary text-white'
+            t.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${
+                type==='success'?'bg-green-600 text-white':type==='error'?'bg-red-600 text-white':'bg-blue-600 text-white'
             }`;
-            setTimeout(() => t.classList.remove('translate-x-full'), 10);
+            t.classList.remove('translate-x-full');
             setTimeout(() => {
                 t.classList.add('translate-x-full');
                 setTimeout(() => t.textContent='', 300);
@@ -263,28 +405,31 @@
         }
 
         // === สลับหน้า ===
+        let currentUser = null;
         function showPage(pageId) {
             ['loginPage','registerPage','forgotPage','mainPage'].forEach(id => {
                 document.getElementById(id).classList.toggle('hidden', id!==pageId);
             });
         }
 
-        // ลิงก์ต่างๆ
-        document.getElementById('linkRegister').onclick = () => showPage('registerPage');
-        document.getElementById('linkLoginFromReg').onclick = () => showPage('loginPage');
-        document.getElementById('linkForgot').onclick = () => {
-            showPage('forgotPage');
-            document.getElementById('forgotStep1').classList.remove('hidden');
-            document.getElementById('forgotStep2').classList.add('hidden');
-            document.getElementById('forgotEmail').value = '';
-        };
-        document.getElementById('backLogin1').onclick = () => showPage('loginPage');
-        document.getElementById('backLogin2').onclick = () => showPage('loginPage');
-        document.getElementById('btnLogout').onclick = () => {
-            showPage('loginPage');
-            document.getElementById('loginForm').reset();
-            showToast('ออกจากระบบเรียบร้อย','info');
-        };
+        // === สลับแท็บในหน้าหลัก ===
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+        function switchTab(name) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.toggle('border-blue-500', b.dataset.tab===name);
+                b.classList.toggle('text-blue-600', b.dataset.tab===name);
+                b.classList.toggle('border-transparent', b.dataset.tab!==name);
+                b.classList.toggle('text-gray-500', b.dataset.tab!==name);
+            });
+            document.querySelectorAll('.tab-content').forEach(c => {
+                c.classList.toggle('hidden', c.id!==`tab-${name}`);
+            });
+            if (name==='history') renderHistory();
+            if (name==='report') renderReportList();
+            if (name==='dashboard') showLatestResult();
+        }
 
         // === แสดง/ซ่อนรหัสผ่าน ===
         function setupEyeToggle(btnId, inputId) {
@@ -301,10 +446,27 @@
         setupEyeToggle('toggleRegPwd','regPwd');
         setupEyeToggle('toggleNewPwd','newPwd');
 
+        // === ลิงก์เปลี่ยนหน้า ===
+        document.getElementById('linkRegister').onclick = () => showPage('registerPage');
+        document.getElementById('linkLoginFromReg').onclick = () => showPage('loginPage');
+        document.getElementById('linkForgot').onclick = () => {
+            showPage('forgotPage');
+            document.getElementById('forgotStep1').classList.remove('hidden');
+            document.getElementById('forgotStep2').classList.add('hidden');
+            document.getElementById('forgotEmail').value = '';
+        };
+        document.getElementById('backLogin1').onclick = () => showPage('loginPage');
+        document.getElementById('backLogin2').onclick = () => showPage('loginPage');
+        document.getElementById('btnLogout').onclick = () => {
+            currentUser = null;
+            showPage('loginPage');
+            document.getElementById('loginForm').reset();
+            showToast('ออกจากระบบเรียบร้อย','info');
+        };
+
         // === ลงทะเบียน ===
         document.getElementById('registerForm').onsubmit = function(e) {
             e.preventDefault();
-            
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -314,18 +476,15 @@
             if (pwd.length < 6) return showToast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร','error');
             if (pwd !== pwd2) return showToast('รหัสผ่านไม่ตรงกัน','error');
 
-            // ตรวจซ้ำ
             const existing = JSON.parse(localStorage.getItem('appUser')||'{}');
             if (existing.email && existing.email === email) {
                 return showToast('อีเมลนี้มีในระบบแล้ว','error');
             }
 
-            // บันทึก
             const user = { name, email, phone, password: pwd };
             localStorage.setItem('appUser', JSON.stringify(user));
             
             showToast(`ลงทะเบียนสำเร็จ! ยินดีต้อนรับคุณ ${name}`,'success');
-            
             setTimeout(() => {
                 showPage('loginPage');
                 document.getElementById('loginUsername').value = email;
@@ -341,15 +500,15 @@
             const saved = JSON.parse(localStorage.getItem('appUser')||'{}');
 
             let ok = false, dispName = '';
-            if (saved.email && u === saved.email && p === saved.password) {
+            if (saved.email && (u === saved.email || u === saved.name) && p === saved.password) {
                 ok = true; dispName = saved.name;
             }
-            // บัญชีทดลอง
             if (u === 'admin' && p === '123456') {
                 ok = true; dispName = 'ผู้ดูแลระบบ';
             }
 
             if (ok) {
+                currentUser = { name: dispName };
                 document.getElementById('currentUser').textContent = dispName;
                 showPage('mainPage');
                 showToast(`ยินดีต้อนรับคุณ ${dispName}`,'success');
@@ -358,7 +517,7 @@
             }
         };
 
-        // === ลืมรหัสผ่าน — ตรวจสอบอีเมล ===
+        // === ลืมรหัสผ่าน ตรวจอีเมล ===
         document.getElementById('forgotStep1').onsubmit = function(e) {
             e.preventDefault();
             const email = document.getElementById('forgotEmail').value.trim();
@@ -368,14 +527,13 @@
                 return showToast('ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง','error');
             }
 
-            // พบแล้ว → ไปตั้งรหัสใหม่
             document.getElementById('foundUserName').textContent = saved.name;
             this.classList.add('hidden');
             document.getElementById('forgotStep2').classList.remove('hidden');
             showToast('พบบัญชีแล้ว กรุณาตั้งรหัสผ่านใหม่','success');
         };
 
-        // === ลืมรหัสผ่าน — บันทึกรหัสใหม่ ===
+        // === ตั้งรหัสผ่านใหม่ ===
         document.getElementById('forgotStep2').onsubmit = function(e) {
             e.preventDefault();
             const pwd = document.getElementById('newPwd').value;
@@ -384,19 +542,189 @@
             if (pwd.length < 6) return showToast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร','error');
             if (pwd !== pwd2) return showToast('รหัสผ่านไม่ตรงกัน','error');
 
-            // อัปเดต
             const saved = JSON.parse(localStorage.getItem('appUser'));
             saved.password = pwd;
             localStorage.setItem('appUser', JSON.stringify(saved));
 
             showToast('ตั้งรหัสผ่านใหม่สำเร็จ!','success');
-            
             setTimeout(() => {
                 showPage('loginPage');
                 document.getElementById('loginUsername').value = saved.email;
-                document.getElementById('newPwd').value = '';
-                document.getElementById('newPwd2').value = '';
+                this.reset();
             }, 1500);
+        };
+
+        // === แสดงค่าคะแนนแบบเลื่อน ===
+        for (let i=1; i<=6; i++) {
+            const inp = document.getElementById(`q${i}`);
+            const sp = document.getElementById(`q${i}v`);
+            inp.oninput = () => sp.textContent = inp.value;
+        }
+
+        // === ประเมินผล ===
+        let lastResult = null;
+        document.getElementById('assessmentForm').onsubmit = function(e) {
+            e.preventDefault();
+            const scores = [1,2,3,4,5,6].map(i => parseInt(document.getElementById(`q${i}`).value));
+            const avg = scores.reduce((a,b)=>a+b,0)/6;
+            let level, color, advice;
+            if (avg >= 7) {
+                level = 'สภาพดี / ปลอดภัย';
+                color = 'risk-low';
+                advice = 'สามารถดำเนินการรีโนเวทได้ตามแผน ไม่พบจุดเสี่ยงสำคัญ ควรตรวจสอบเป็นประจำทุกปี';
+            } else if (avg >= 4) {
+                level = 'ควรเฝ้าระวัง / ซ่อมบำรุง';
+                color = 'risk-medium';
+                advice = 'พบจุดที่ต้องปรับปรุงบางจุด ควรซ่อมแซมก่อนรีโนเวท และตรวจสอบโครงสร้างโดยวิศวกร';
+            } else {
+                level = 'มีความเสี่ยงสูง / ต้องซ่อมเร่งด่วน';
+                color = 'risk-high';
+                advice = 'สภาพอาคารชำรุดมาก มีความเสี่ยงด้านความปลอดภัย ควรหยุดใช้งานและให้วิศวกรตรวจสอบทันที';
+            }
+
+            const result = {
+                id: Date.now(),
+                date: new Date().toLocaleString('th-TH'),
+                name: document.getElementById('bldName').value,
+                area: document.getElementById('bldArea').value,
+                age: document.getElementById('bldAge').value,
+                bldType: document.getElementById('bldType').value,
+                scores,
+                avg: avg.toFixed(2),
+                level,
+                color,
+                advice,
+                remark: document.getElementById('remark').value
+            };
+            lastResult = result;
+
+            document.getElementById('resultContent').innerHTML = `
+                <p class="mb-2"><strong>ชื่อโครงการ:</strong> ${result.name}</p>
+                <p class="mb-2"><strong>พื้นที่:</strong> ${result.area} ตร.ม. | <strong>อายุ:</strong> ${result.age} ปี | <strong>ประเภท:</strong> ${result.bldType}</p>
+                <p class="mb-2"><strong>คะแนนเฉลี่ย:</strong> ${result.avg} / 10</p>
+                <div class="p-4 rounded-lg ${result.color} mt-3">
+                    <p class="font-bold text-lg">ระดับ: ${result.level}</p>
+                    <p class="mt-2">${result.advice}</p>
+                </div>
+                ${result.remark?`<p class="mt-4 text-gray-600"><strong>ข้อสังเกต:</strong> ${result.remark}</p>`:''}
+            `;
+            document.getElementById('resultBox').classList.remove('hidden');
+            showToast('ประเมินผลเสร็จสิ้น','success');
+        };
+
+        // === บันทึกผล ===
+        document.getElementById('saveResult').onclick = () => {
+            if (!lastResult) return;
+            const history = JSON.parse(localStorage.getItem('assessmentHistory')||'[]');
+            history.unshift(lastResult);
+            localStorage.setItem('assessmentHistory', JSON.stringify(history));
+            showToast('บันทึกผลเรียบร้อย','success');
+        };
+
+        // === ประเมินใหม่ ===
+        document.getElementById('newAssessment').onclick = () => {
+            document.getElementById('assessmentForm').reset();
+            document.getElementById('resultBox').classList.add('hidden');
+            for (let i=1; i<=6; i++) {
+                document.getElementById(`q${i}`).value = 5;
+                document.getElementById(`q${i}v`).textContent = '5';
+            }
+            lastResult = null;
+        };
+
+        // === พิมพ์/ส่งออก ===
+        document.getElementById('printResult').onclick = () => {
+            if (!lastResult) return;
+            window.print();
+        };
+
+        // === แสดงประวัติ ===
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('assessmentHistory')||'[]');
+            const box = document.getElementById('historyList');
+            if (!history.length) {
+                box.innerHTML = '<p class="text-gray-500">ยังไม่มีประวัติการประเมิน</p>';
+                return;
+            }
+            box.innerHTML = history.map(r => `
+                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 ${r.color.replace('risk-','border-').replace('low','green-500').replace('medium','yellow-500').replace('high','red-500')}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold text-lg">${r.name}</h4>
+                            <p class="text-sm text-gray-500">${r.date}</p>
+                            <p class="mt-1">คะแนนเฉลี่ย: ${r.avg} — <strong>${r.level}</strong></p>
+                        </div>
+                        <button class="text-gray-400 hover:text-red-500" data-id="${r.id}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // === แสดงรายงาน ===
+        function renderReportList() {
+            const history = JSON.parse(localStorage.getItem('assessmentHistory')||'[]');
+            const box = document.getElementById('reportList');
+            if (!history.length) {
+                box.innerHTML = '<p class="text-gray-500">ยังไม่มีข้อมูลเพื่อสร้างรายงาน</p>';
+                return;
+            }
+            box.innerHTML = history.map(r => `
+                <div class="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center">
+                    <div>
+                        <h4 class="font-semibold">${r.name}</h4>
+                        <p class="text-sm text-gray-500">${r.date} | คะแนน: ${r.avg}</p>
+                    </div>
+                    <button class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700" onclick="printSingle(${r.id})">
+                        <i class="fa fa-file-pdf-o mr-1"></i> พิมพ์รายงาน
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // === แสดงผลล่าสุดในแดชบอร์ด ===
+        function showLatestResult() {
+            const history = JSON.parse(localStorage.getItem('assessmentHistory')||'[]');
+            const sec = document.getElementById('latestResult');
+            const box = document.getElementById('latestResultBox');
+            if (!history.length) {
+                sec.classList.add('hidden');
+                return;
+            }
+            sec.classList.remove('hidden');
+            const r = history[0];
+            box.className = `rounded-lg p-5 ${r.color}`;
+            box.innerHTML = `
+                <p class="font-semibold text-lg">${r.name}</p>
+                <p class="text-sm opacity-80">${r.date}</p>
+                <p class="mt-2">คะแนนเฉลี่ย: ${r.avg} — ${r.level}</p>
+            `;
+        }
+
+        // === พิมพ์รายงานรายการ ===
+        window.printSingle = function(id) {
+            const history = JSON.parse(localStorage.getItem('assessmentHistory')||'[]');
+            const r = history.find(x => x.id === id);
+            if (!r) return;
+            lastResult = r;
+            switchTab('assessment');
+            setTimeout(() => {
+                document.getElementById('resultBox').classList.remove('hidden');
+                document.getElementById('resultContent').innerHTML = `
+                    <h2 class="text-xl font-bold mb-4">รายงานผลการประเมินสภาพอาคาร</h2>
+                    <p class="mb-2"><strong>ชื่อโครงการ:</strong> ${r.name}</p>
+                    <p class="mb-2"><strong>วันที่ประเมิน:</strong> ${r.date}</p>
+                    <p class="mb-2"><strong>พื้นที่:</strong> ${r.area} ตร.ม. | <strong>อายุ:</strong> ${r.age} ปี | <strong>ประเภท:</strong> ${r.bldType}</p>
+                    <p class="mb-2"><strong>คะแนนเฉลี่ย:</strong> ${r.avg} / 10</p>
+                    <div class="p-4 rounded-lg ${r.color} mt-3">
+                        <p class="font-bold text-lg">ระดับ: ${r.level}</p>
+                        <p class="mt-2">${r.advice}</p>
+                    </div>
+                    ${r.remark?`<p class="mt-4 text-gray-600"><strong>ข้อสังเกต:</strong> ${r.remark}</p>`:''}
+                `;
+                window.print();
+            }, 100);
         };
     </script>
 </body>
